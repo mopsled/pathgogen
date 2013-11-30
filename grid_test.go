@@ -4,14 +4,14 @@ import (
 	"testing"
 )
 
-func TestCreateEmptyBoard(t *testing.T) {
+func TestCreateEmptyGrid(t *testing.T) {
 	g := NewEmptyGrid(10, 10)
 	if g == nil {
 		t.Error("Can't create an empty grid")
 	}
 }
 
-func TestEmptyBoardHasEmptyCells(t *testing.T) {
+func TestEmptyGridHasEmptyCells(t *testing.T) {
 	g := NewEmptyGrid(10, 10)
 	for _, cells := range g.cells {
 		for _, cell := range cells {
@@ -22,7 +22,7 @@ func TestEmptyBoardHasEmptyCells(t *testing.T) {
 	}
 }
 
-func TestCreateBoardWithCells(t *testing.T) {
+func TestCreateGridWithCells(t *testing.T) {
 	cells := [][]Cell{
 		[]Cell{Cell{nilCell, ""}, Cell{nilCell, ""}, Cell{nilCell, ""}},
 		[]Cell{Cell{nilCell, ""}, Cell{aCell, ""}, Cell{nilCell, ""}},
@@ -30,14 +30,14 @@ func TestCreateBoardWithCells(t *testing.T) {
 	}
 	g := NewGridFromCells(cells)
 	if g.cells[0][0].cellType != nilCell {
-		t.Error("Grid is different than the literal it was initialized with")
+		t.Error("Unexpected cellType in grid initialized with cells")
 	}
 	if g.cells[1][1].cellType != aCell {
-		t.Error("Grid is different than the literal it was initialized with")
+		t.Error("Unexpected cellType in grid initialized with cells")
 	}
 }
 
-func TestCreateBoardWithAscii(t *testing.T) {
+func TestCreateGridWithAscii(t *testing.T) {
 	cells := []string{
 		"a...a",
 		".b.b.",
@@ -45,7 +45,7 @@ func TestCreateBoardWithAscii(t *testing.T) {
 	}
 	g, err := NewGridFromAscii(cells)
 	if err != nil {
-		t.Error("Grid created from ascii should not have produced a error")
+		t.Errorf("Grid created from ascii produced an error: %s", err)
 	}
 	if g.Width() != 5 {
 		t.Error("Grid has the wrong width for its initializing string")
@@ -54,15 +54,40 @@ func TestCreateBoardWithAscii(t *testing.T) {
 		t.Error("Grid has the wrong width for its initializing string")
 	}
 	if g.cells[0][0].cellType != aCell {
-		t.Error("Grid is different than the string literal it was initialized with")
+		t.Error("Unexpected cellType in grid initialized with ascii")
 	}
 	if g.cells[2][2].cellType != cCell {
-		t.Error("Grid is different than the string literal it was initialized with")
+		t.Error("Unexpected cellType in grid initialized with ascii")
 	}
 	if g.cells[0][2].cellType != nilCell {
-		t.Error("Grid is different than the string literal it was initialized with")
+		t.Error("Unexpected cellType in grid initialized with ascii")
 	}
 	if g.cells[1][3].cellType != bCell {
-		t.Error("Grid is different than the string literal it was initialized with")
+		t.Error("Unexpected cellType in grid initialized with ascii")
+	}
+}
+
+func TestAccessGridByCoordinate(t *testing.T) {
+	cells := []string{
+		"a...a",
+		".b.b.",
+		"..c..",
+	}
+	g, err := NewGridFromAscii(cells)
+
+	cell, err := g.At("a3")
+	if err != nil {
+		t.Errorf("Grid access by coordinate returned an error: %s", err)
+	}
+	if cell.cellType != aCell {
+		t.Error("Grid access by coordinate returned unexpected cellType")
+	}
+
+	cell, err = g.At("c1")
+	if err != nil {
+		t.Errorf("Grid access by coordinate returned an error: %s", err)
+	}
+	if cell.cellType != cCell {
+		t.Error("Grid access by coordinate returned unexpected cellType")
 	}
 }
