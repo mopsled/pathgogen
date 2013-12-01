@@ -46,26 +46,20 @@ func (grid Grid) Height() int {
 }
 
 func (grid Grid) At(coordinate string) (*Cell, error) {
-	if matched, _ := regexp.MatchString("[a-zA-Z]+[0-9]+", coordinate); !matched {
-		return nil, fmt.Errorf("Unable to use strange coordinate '%s'. Try something like 'a5' or 'f27'.", coordinate)
+	row, column, err := rowAndColumnForCoordinate(coordinate, grid)
+	if err != nil {
+		return nil, err
 	}
+	return &grid.cells[row][column], nil
+}
 
-	matches := regexp.MustCompile("([a-zA-Z]+)([0-9]+)").FindStringSubmatch(coordinate)
-	letterString, numberString := matches[1], matches[2]
-	number64, _ := strconv.ParseInt(numberString, 10, 0)
-	number := int(number64)
-	letterValue := letterIndexToInt(letterString)
-	if number == 0 {
-		return nil, fmt.Errorf("Grid coordinates are 1-based, not 0-based. Coordinate '%s' doesn't exist on the board.")
+func (grid Grid) Set(coordinate string, cell *Cell) (err error) {
+	row, column, err := rowAndColumnForCoordinate(coordinate, grid)
+	if err != nil {
+		return err
 	}
-	if number > grid.Height() {
-		return nil, fmt.Errorf("Coordinate '%s' doesn't exist on this grid, which has a height of %d", coordinate, grid.Height())
-	}
-	if letterValue > grid.Width() {
-		return nil, fmt.Errorf("Coordinate '%s' doesn't exist on this grid, which has a width of %d", coordinate, grid.Width())
-	}
-
-	return &grid.cells[grid.Height()-number][letterValue-1], nil
+	grid.cells[row][column] = *cell
+	return
 }
 
 func mapRuneToCellType(r rune) (CellType, error) {
@@ -81,6 +75,33 @@ func mapRuneToCellType(r rune) (CellType, error) {
 	} else {
 		return nilCell, fmt.Errorf("No cell type matches rune '%s'", string(r))
 	}
+}
+
+func rowAndColumnForCoordinate(coordinate string, grid Grid) (row, column int, err error) {
+	if matched, _ := regexp.MatchString("[a-zA-Z]+[0-9]+", coordinate); !matched {
+		err = fmt.Errorf("Unable to use strange coordinate '%s'. Try something like 'a5' or 'f27'.", coordinate)
+		return
+	}
+
+	matches := regexp.MustCompile("([a-zA-Z]+)([0-9]+)").FindStringSubmatch(coordinate)
+	letterString, numberString := matches[1], matches[2]
+	number64, _ := strconv.ParseInt(numberString, 10, 0)
+	number := int(number64)
+	letterValue := letterIndexToInt(letterString)
+	if number == 0 {
+		err = fmt.Errorf("Grid coordinates are 1-based, not 0-based. Coordinate '%s' doesn't exist on the board.")
+		return
+	}
+	if number > grid.Height() {
+		err = fmt.Errorf("Coordinate '%s' doesn't exist on this grid, which has a height of %d", coordinate, grid.Height())
+		return
+	}
+	if letterValue > grid.Width() {
+		err = fmt.Errorf("Coordinate '%s' doesn't exist on this grid, which has a width of %d", coordinate, grid.Width())
+		return
+	}
+
+	return (grid.Height() - number), (letterValue - 1), nil
 }
 
 func letterIndexToInt(letters string) int {

@@ -167,3 +167,70 @@ func TestAccessGridReturnsErrorForInvalidIndices(t *testing.T) {
 		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
 	}
 }
+
+func TestGridSet(t *testing.T) {
+	cells := []string{
+		"a...a..",
+		".b.b...",
+		"..c....",
+	}
+	g, _ := NewGridFromAscii(cells)
+
+	err := g.Set("a1", teamlessCell(aCell))
+	if err != nil {
+		t.Errorf("Grid set by coordinate returned an error: %s", err)
+	}
+	if cell, _ := g.At("a1"); cell.cellType != aCell {
+		t.Error("Grid set by coordinate returned unexpected cellType")
+	}
+
+	err = g.Set("a3", teamlessCell(bCell))
+	if err != nil {
+		t.Errorf("Grid set by coordinate returned an error: %s", err)
+	}
+	if cell, _ := g.At("a3"); cell.cellType != bCell {
+		t.Error("Grid set by coordinate returned unexpected cellType")
+	}
+
+	err = g.Set("c2", teamlessCell(cCell))
+	if err != nil {
+		t.Errorf("Grid set by coordinate returned an error: %s", err)
+	}
+	if cell, _ := g.At("c2"); cell.cellType != cCell {
+		t.Error("Grid set by coordinate returned unexpected cellType")
+	}
+
+	err = g.Set("g3", teamlessCell(nilCell))
+	if err != nil {
+		t.Errorf("Grid set by coordinate returned an error: %s", err)
+	}
+	if cell, _ := g.At("g3"); cell.cellType != nilCell {
+		t.Error("Grid set by coordinate returned unexpected cellType")
+	}
+}
+
+func TestGridSetWithInvalidInput(t *testing.T) {
+	cells := []string{
+		"a...a",
+		".b.b.",
+		"..c..",
+	}
+	g, _ := NewGridFromAscii(cells)
+
+	if err := g.Set("abc", teamlessCell(aCell)); err == nil {
+		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
+	}
+	if err := g.Set("aa11", teamlessCell(bCell)); err == nil {
+		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
+	}
+	if err := g.Set("f4", teamlessCell(nilCell)); err == nil {
+		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
+	}
+	if err := g.Set("zzzz1000", teamlessCell(cCell)); err == nil {
+		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
+	}
+}
+
+func teamlessCell(cellType CellType) *Cell {
+	return &Cell{cellType, ""}
+}
