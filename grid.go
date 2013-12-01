@@ -7,21 +7,6 @@ import (
 	"strconv"
 )
 
-type CellType int
-
-const (
-	nilCell CellType = iota
-	aCell
-	bCell
-	cCell
-	wallCell
-)
-
-type Cell struct {
-	cellType CellType
-	team     string
-}
-
 type Grid struct {
 	cells [][]Cell
 }
@@ -73,6 +58,9 @@ func (grid Grid) At(coordinate string) (*Cell, error) {
 	number64, _ := strconv.ParseInt(numberString, 10, 0)
 	number := int(number64)
 	letterValue := letterIndexToInt(letterString)
+	if number == 0 {
+		return nil, fmt.Errorf("Grid coordinates are 1-based, not 0-based. Coordinate '%s' doesn't exist on the board.")
+	}
 	if number > grid.Height() {
 		return nil, fmt.Errorf("Coordinate '%s' doesn't exist on this grid, which has a height of %d", coordinate, grid.Height())
 	}
@@ -89,7 +77,7 @@ func mapRuneToCellType(r rune) (CellType, error) {
 		'a': aCell,
 		'b': bCell,
 		'c': cCell,
-		'W': wallCell,
+		'w': wallCell,
 	}
 	if cellType, ok := cellTypeMap[r]; ok {
 		return cellType, nil
