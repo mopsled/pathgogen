@@ -5,7 +5,8 @@ import (
 )
 
 type Propagator struct {
-	grid *Grid
+	grid    *Grid
+	touched [][]bool
 }
 
 type rowAndColumn struct {
@@ -13,7 +14,11 @@ type rowAndColumn struct {
 }
 
 func NewPropagator(grid *Grid) *Propagator {
-	return &Propagator{grid}
+	touched := make([][]bool, grid.Height())
+	for i := 0; i < grid.Width(); i++ {
+		touched[i] = make([]bool, grid.Width())
+	}
+	return &Propagator{grid, touched}
 }
 
 func (p Propagator) Propagate(cell *Cell, coordinate string) error {
@@ -25,9 +30,10 @@ func (p Propagator) Propagate(cell *Cell, coordinate string) error {
 }
 
 func (p Propagator) innerPropagate(cell *Cell, row, column int) error {
-	if cell.cellType == nilCell {
+	if cell.cellType == nilCell || p.touched[row][column] {
 		return nil
 	}
+	p.touched[row][column] = true
 	currentCell := (*p.grid).cells[row][column]
 	if currentCell.cellType > cell.cellType {
 		return fmt.Errorf("Error propagating cell at (%d, %d). Trying to propagate with lesser cell type.", row, column)
@@ -36,11 +42,12 @@ func (p Propagator) innerPropagate(cell *Cell, row, column int) error {
 	} else {
 		(*p.grid).cells[row][column].cellType = cell.cellType
 	}
+	currentCell = (*p.grid).cells[row][column]
 	neighbors := getNeighborCoordinates(row, column, *p.grid)
 	for _, neighbor := range neighbors {
 		neighborCell := (*p.grid).cells[neighbor.row][neighbor.column]
-		if cell.greaterThan(neighborCell) {
-			err := p.innerPropagate(&Cell{downgrade((*p.grid).cells[row][column].cellType), ""}, neighbor.row, neighbor.column)
+		if currentCell.greaterThan(neighborCell) {
+			err := p.innerPropagate(&Cell{downgrade(currentCell.cellType), ""}, neighbor.row, neighbor.column)
 			if err != nil {
 				return err
 			}
