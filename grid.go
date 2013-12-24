@@ -23,20 +23,6 @@ func NewGridFromCells(cells [][]Cell) *Grid {
 	return &Grid{cells}
 }
 
-func NewGridFromAscii(s []string) (grid *Grid, err error) {
-	grid = NewEmptyGrid(len(s[0]), len(s))
-	for i, row := range s {
-		for j, b := range row {
-			var cellType CellType
-			if cellType, err = mapRuneToCellType(b); err != nil {
-				return nil, err
-			}
-			grid.cells[i][j] = Cell{cellType, ""}
-		}
-	}
-	return
-}
-
 func (grid Grid) Width() int {
 	return len(grid.cells[0])
 }
@@ -60,21 +46,6 @@ func (grid Grid) Set(coordinate string, cell *Cell) (err error) {
 	}
 	grid.cells[row][column] = *cell
 	return
-}
-
-func mapRuneToCellType(r rune) (CellType, error) {
-	cellTypeMap := map[rune]CellType{
-		'.': nilCell,
-		'a': aCell,
-		'b': bCell,
-		'c': cCell,
-		'w': wallCell,
-	}
-	if cellType, ok := cellTypeMap[r]; ok {
-		return cellType, nil
-	} else {
-		return nilCell, fmt.Errorf("No cell type matches rune '%s'", string(r))
-	}
 }
 
 func rowAndColumnForCoordinate(coordinate string, grid Grid) (row, column int, err error) {

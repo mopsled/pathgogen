@@ -4,6 +4,36 @@ import (
 	"testing"
 )
 
+func TestCreateGridWithAscii(t *testing.T) {
+	cells := []string{
+		"a...a",
+		".b.b.",
+		"..c..",
+	}
+	g, err := NewGridFromAscii(cells)
+	if err != nil {
+		t.Errorf("Grid created from ascii produced an error: %s", err)
+	}
+	if g.Width() != 5 {
+		t.Error("Grid has the wrong width for its initializing string")
+	}
+	if g.Height() != 3 {
+		t.Error("Grid has the wrong width for its initializing string")
+	}
+	if g.cells[0][0].cellType != aCell {
+		t.Error("Unexpected cellType in grid initialized with ascii")
+	}
+	if g.cells[2][2].cellType != cCell {
+		t.Error("Unexpected cellType in grid initialized with ascii")
+	}
+	if g.cells[0][2].cellType != nilCell {
+		t.Error("Unexpected cellType in grid initialized with ascii")
+	}
+	if g.cells[1][3].cellType != bCell {
+		t.Error("Unexpected cellType in grid initialized with ascii")
+	}
+}
+
 func TestStringForGridWithASimpleGrid(t *testing.T) {
 	cells := []string{
 		".....",

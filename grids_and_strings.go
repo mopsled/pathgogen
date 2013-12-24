@@ -5,6 +5,20 @@ import (
 	"fmt"
 )
 
+func NewGridFromAscii(s []string) (grid *Grid, err error) {
+	grid = NewEmptyGrid(len(s[0]), len(s))
+	for i, row := range s {
+		for j, b := range row {
+			var cellType CellType
+			if cellType, err = mapRuneToCellType(b); err != nil {
+				return nil, err
+			}
+			grid.cells[i][j] = Cell{cellType, ""}
+		}
+	}
+	return
+}
+
 func StringForGrid(grid *Grid) (string, error) {
 	var output bytes.Buffer
 	for _, row := range grid.cells {
@@ -18,6 +32,21 @@ func StringForGrid(grid *Grid) (string, error) {
 		output.WriteRune('\n')
 	}
 	return output.String(), nil
+}
+
+func mapRuneToCellType(r rune) (CellType, error) {
+	cellTypeMap := map[rune]CellType{
+		'.': nilCell,
+		'a': aCell,
+		'b': bCell,
+		'c': cCell,
+		'w': wallCell,
+	}
+	if cellType, ok := cellTypeMap[r]; ok {
+		return cellType, nil
+	} else {
+		return nilCell, fmt.Errorf("No cell type matches rune '%s'", string(r))
+	}
 }
 
 func mapCellTypeToRune(cellType CellType) (rune, error) {
