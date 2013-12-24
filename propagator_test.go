@@ -13,10 +13,10 @@ func TestCreatePropagator(t *testing.T) {
 	}
 }
 
-func TestACellPropagation(t *testing.T) {
+func TestACellOnEmptyBoardPropagation(t *testing.T) {
 	g := getSmallEmptyGrid()
 	p := NewPropagator(g)
-	p.Propagate(teamlessCell(aCell), "c3")
+	_ = p.Propagate(teamlessCell(aCell), "c3")
 	expectedCells := []string{
 		".....",
 		".....",
@@ -28,7 +28,27 @@ func TestACellPropagation(t *testing.T) {
 	if !reflect.DeepEqual(g, expectedGrid) {
 		gridString, _ := StringForGrid(g)
 		expectedGridString, _ := StringForGrid(expectedGrid)
-		t.Errorf("Propagated grid is different than expected.\nExpected:\n%sOutput:\n%s\n", gridString, expectedGridString)
+		t.Errorf("Propagated grid is different than expected.\nExpected:\n%sOutput:\n%s\n", expectedGridString, gridString)
+	}
+}
+
+func TestDoubleACellPropagation(t *testing.T) {
+	g := getSmallEmptyGrid()
+	_ = g.Set("c3", teamlessCell(aCell))
+	p := NewPropagator(g)
+	p.Propagate(teamlessCell(aCell), "c3")
+	expectedCells := []string{
+		".....",
+		"..a..",
+		".aba.",
+		"..a..",
+		".....",
+	}
+	expectedGrid, _ := NewGridFromAscii(expectedCells)
+	if !reflect.DeepEqual(g, expectedGrid) {
+		gridString, _ := StringForGrid(g)
+		expectedGridString, _ := StringForGrid(expectedGrid)
+		t.Errorf("Propagated grid is different than expected.\nExpected:\n%sOutput:\n%s\n", expectedGridString, gridString)
 	}
 }
 

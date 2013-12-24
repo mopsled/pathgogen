@@ -32,7 +32,7 @@ func (grid Grid) Height() int {
 }
 
 func (grid Grid) At(coordinate string) (*Cell, error) {
-	row, column, err := rowAndColumnForCoordinate(coordinate, grid)
+	row, column, err := RowAndColumnForCoordinate(coordinate, grid)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (grid Grid) At(coordinate string) (*Cell, error) {
 }
 
 func (grid Grid) Set(coordinate string, cell *Cell) (err error) {
-	row, column, err := rowAndColumnForCoordinate(coordinate, grid)
+	row, column, err := RowAndColumnForCoordinate(coordinate, grid)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (grid Grid) Set(coordinate string, cell *Cell) (err error) {
 	return
 }
 
-func rowAndColumnForCoordinate(coordinate string, grid Grid) (row, column int, err error) {
+func RowAndColumnForCoordinate(coordinate string, grid Grid) (row, column int, err error) {
 	if matched, _ := regexp.MatchString("[a-zA-Z]+[0-9]+", coordinate); !matched {
 		err = fmt.Errorf("Unable to use strange coordinate '%s'. Try something like 'a5' or 'f27'.", coordinate)
 		return
