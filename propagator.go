@@ -47,9 +47,18 @@ func (p Propagator) innerPropagate(cell *Cell, row, column int) error {
 	for _, neighbor := range neighbors {
 		neighborCell := (*p.grid).cells[neighbor.row][neighbor.column]
 		if currentCell.greaterThan(neighborCell) {
-			err := p.innerPropagate(&Cell{downgrade(currentCell.cellType), ""}, neighbor.row, neighbor.column)
-			if err != nil {
-				return err
+			if currentCell.cellType == wallCell {
+				if neighborCell.cellType == cCell {
+					err := p.innerPropagate(&Cell{downgrade(currentCell.cellType), ""}, neighbor.row, neighbor.column)
+					if err != nil {
+						return err
+					}
+				}
+			} else {
+				err := p.innerPropagate(&Cell{downgrade(currentCell.cellType), ""}, neighbor.row, neighbor.column)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

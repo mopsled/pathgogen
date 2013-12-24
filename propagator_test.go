@@ -132,6 +132,75 @@ func TestBNextToAAndBCellPropagation(t *testing.T) {
 	}
 }
 
+func TestSingleCCellPropagation(t *testing.T) {
+	g := getSmallEmptyGrid()
+	p := NewPropagator(g)
+	p.Propagate(teamlessCell(cCell), "c3")
+	expectedCells := []string{
+		"..a..",
+		".aba.",
+		"abcba",
+		".aba.",
+		"..a..",
+	}
+	expectedGrid, _ := NewGridFromAscii(expectedCells)
+	if !reflect.DeepEqual(g, expectedGrid) {
+		gridString, _ := StringForGrid(g)
+		expectedGridString, _ := StringForGrid(expectedGrid)
+		t.Errorf("Propagated grid is different than expected.\nExpected:\n%sOutput:\n%s\n", expectedGridString, gridString)
+	}
+}
+
+func TestDoubleCCellPropagation(t *testing.T) {
+	g := getSmallEmptyGrid()
+	_ = g.Set("c3", teamlessCell(cCell))
+	p := NewPropagator(g)
+	p.Propagate(teamlessCell(cCell), "c3")
+	expectedCells := []string{
+		".....",
+		".....",
+		"..w..",
+		".....",
+		".....",
+	}
+	expectedGrid, _ := NewGridFromAscii(expectedCells)
+	if !reflect.DeepEqual(g, expectedGrid) {
+		gridString, _ := StringForGrid(g)
+		expectedGridString, _ := StringForGrid(expectedGrid)
+		t.Errorf("Propagated grid is different than expected.\nExpected:\n%sOutput:\n%s\n", expectedGridString, gridString)
+	}
+}
+
+func TestMultipleWallPropagation(t *testing.T) {
+	cells := []string{
+		"...c...",
+		".abcba.",
+		"..ccc..",
+		".accca.",
+		"..ccc..",
+		".abcba.",
+		"...cc..",
+	}
+	g, _ := NewGridFromAscii(cells)
+	p := NewPropagator(g)
+	p.Propagate(teamlessCell(cCell), "d7")
+	expectedCells := []string{
+		"...w...",
+		".abwba.",
+		"..www..",
+		".awwwa.",
+		"..www..",
+		".abwba.",
+		"...ww..",
+	}
+	expectedGrid, _ := NewGridFromAscii(expectedCells)
+	if !reflect.DeepEqual(g, expectedGrid) {
+		gridString, _ := StringForGrid(g)
+		expectedGridString, _ := StringForGrid(expectedGrid)
+		t.Errorf("Propagated grid is different than expected.\nExpected:\n%sOutput:\n%s\n", expectedGridString, gridString)
+	}
+}
+
 func getSmallEmptyGrid() *Grid {
 	cells := []string{
 		".....",
