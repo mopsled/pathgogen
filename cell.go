@@ -12,5 +12,5 @@ const (
 
 type Cell struct {
 	cellType CellType
-	team     string
+	team     int
 }

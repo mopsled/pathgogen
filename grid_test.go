@@ -24,9 +24,9 @@ func TestEmptyGridHasEmptyCells(t *testing.T) {
 
 func TestCreateGridWithCells(t *testing.T) {
 	cells := [][]Cell{
-		[]Cell{Cell{nilCell, ""}, Cell{nilCell, ""}, Cell{nilCell, ""}},
-		[]Cell{Cell{nilCell, ""}, Cell{aCell, ""}, Cell{nilCell, ""}},
-		[]Cell{Cell{nilCell, ""}, Cell{nilCell, ""}, Cell{nilCell, ""}},
+		[]Cell{Cell{nilCell, 0}, Cell{nilCell, 0}, Cell{nilCell, 0}},
+		[]Cell{Cell{nilCell, 0}, Cell{aCell, 0}, Cell{nilCell, 0}},
+		[]Cell{Cell{nilCell, 0}, Cell{nilCell, 0}, Cell{nilCell, 0}},
 	}
 	g := NewGridFromCells(cells)
 	if g.cells[0][0].cellType != nilCell {
@@ -44,7 +44,9 @@ func TestAccessGridByCoordinateWithASmallBoard(t *testing.T) {
 		"..c..",
 	}
 	g, err := NewGridFromAscii(cells)
-
+	if err != nil {
+		t.Fatalf("Grid created from ascii produced an error: %s", err)
+	}
 	cell, err := g.At("a3")
 	if err != nil {
 		t.Errorf("Grid access by coordinate returned an error: %s", err)
@@ -83,6 +85,9 @@ func TestAccessGridByCoordinateWithAGiantBoard(t *testing.T) {
 		"a.................................................",
 	}
 	g, err := NewGridFromAscii(cells)
+	if err != nil {
+		t.Fatalf("Grid created from ascii produced an error: %s", err)
+	}
 	cell, err := g.At("a1")
 	if err != nil {
 		t.Errorf("Grid access by coordinate returned an error: %s", err)
@@ -116,8 +121,10 @@ func TestAccessGridReturnsErrorForInvalidIndices(t *testing.T) {
 		".b.b.",
 		"..c..",
 	}
-	g, _ := NewGridFromAscii(cells)
-
+	g, err := NewGridFromAscii(cells)
+	if err != nil {
+		t.Fatalf("Grid created from ascii produced an error: %s", err)
+	}
 	if _, err := g.At("abc"); err == nil {
 		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
 	}
@@ -144,9 +151,12 @@ func TestGridSet(t *testing.T) {
 		".b.b...",
 		"..c....",
 	}
-	g, _ := NewGridFromAscii(cells)
+	g, err := NewGridFromAscii(cells)
+	if err != nil {
+		t.Fatalf("Grid created from ascii produced an error: %s", err)
+	}
 
-	err := g.Set("a1", teamlessCell(aCell))
+	err = g.Set("a1", teamOneCell(aCell))
 	if err != nil {
 		t.Errorf("Grid set by coordinate returned an error: %s", err)
 	}
@@ -154,7 +164,7 @@ func TestGridSet(t *testing.T) {
 		t.Error("Grid set by coordinate returned unexpected cellType")
 	}
 
-	err = g.Set("a3", teamlessCell(bCell))
+	err = g.Set("a3", teamOneCell(bCell))
 	if err != nil {
 		t.Errorf("Grid set by coordinate returned an error: %s", err)
 	}
@@ -162,7 +172,7 @@ func TestGridSet(t *testing.T) {
 		t.Error("Grid set by coordinate returned unexpected cellType")
 	}
 
-	err = g.Set("c2", teamlessCell(cCell))
+	err = g.Set("c2", teamOneCell(cCell))
 	if err != nil {
 		t.Errorf("Grid set by coordinate returned an error: %s", err)
 	}
@@ -170,7 +180,7 @@ func TestGridSet(t *testing.T) {
 		t.Error("Grid set by coordinate returned unexpected cellType")
 	}
 
-	err = g.Set("g3", teamlessCell(nilCell))
+	err = g.Set("g3", teamOneCell(nilCell))
 	if err != nil {
 		t.Errorf("Grid set by coordinate returned an error: %s", err)
 	}
@@ -185,22 +195,25 @@ func TestGridSetWithInvalidInput(t *testing.T) {
 		".b.b.",
 		"..c..",
 	}
-	g, _ := NewGridFromAscii(cells)
+	g, err := NewGridFromAscii(cells)
+	if err != nil {
+		t.Fatalf("Grid created from ascii produced an error: %s", err)
+	}
 
-	if err := g.Set("abc", teamlessCell(aCell)); err == nil {
+	if err = g.Set("abc", teamOneCell(aCell)); err == nil {
 		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
 	}
-	if err := g.Set("aa11", teamlessCell(bCell)); err == nil {
+	if err = g.Set("aa11", teamOneCell(bCell)); err == nil {
 		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
 	}
-	if err := g.Set("f4", teamlessCell(nilCell)); err == nil {
+	if err = g.Set("f4", teamOneCell(nilCell)); err == nil {
 		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
 	}
-	if err := g.Set("zzzz1000", teamlessCell(cCell)); err == nil {
+	if err = g.Set("zzzz1000", teamOneCell(cCell)); err == nil {
 		t.Errorf("Grid access by coordinate should have an error for index 'abc', but didn't")
 	}
 }
 
-func teamlessCell(cellType CellType) *Cell {
-	return &Cell{cellType, ""}
+func teamOneCell(cellType CellType) *Cell {
+	return &Cell{cellType, 1}
 }
